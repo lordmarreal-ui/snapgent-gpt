@@ -21,5 +21,5 @@ Duplicate start; duplicate stop; stale stopping after bootstrap; watchdog stop w
 ## Task 2: GREEN
 - [x] Add transitionLoop(flags,event) to core/guard.js; expose it in exported ZSGuard.
 - [x] Replace only loop start, user stop, finally reset and drain assignment in core/main.js with Object.assign(A, ZSGuard.transitionLoop(A, {type: ...})).
-- [ ] Run all Python and JavaScript CI suites; expect green.
-- [ ] Review diff, update ledger, open draft PR against dev/m0-foundation.
+- [x] Run all Python and JavaScript CI suites: 3/3 jobs successful at `0aa4b09`; [CI run 45840408120](https://github.com/lordmarreal-ui/snapgent-gpt/actions/runs/45840408120). Node logs confirm all 11 transition cases, immutability assertions, unknown-event rejection and four wiring checks passed.
+- [x] Review diff (author self-review, no independent subagent), update ledger, open [draft PR #2](https://github.com/lordmarreal-ui/snapgent-gpt/pull/2) against dev/m0-foundation. Remaining limitation: live-browser behavior not exercised by static wiring checks; other lifecycle writers and Electron unchanged.
