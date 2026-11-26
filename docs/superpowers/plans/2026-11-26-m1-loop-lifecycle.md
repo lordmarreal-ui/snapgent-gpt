@@ -14,12 +14,12 @@ No provider, MCP, Electron, UI or permission behavior change. Work on feat/m1-lo
 Duplicate start; duplicate stop; stale stopping after bootstrap; watchdog stop without a user stop; provider still generating after cleanup. Preserve provider drain probe order and non-lifecycle state.
 
 ## Task 1: RED
-- [ ] Add snapgent-extension/test-lifecycle.js with pure transition assertions and four wiring checks.
-- [ ] Run node test-lifecycle.js via CI; expect explicit assertion that transitionLoop is missing (not infrastructure failure).
-- [ ] Record red commit/run evidence.
+- [x] Add snapgent-extension/test-lifecycle.js with pure transition assertions and four wiring checks.
+- [x] Run node test-lifecycle.js via CI; expect explicit assertion that transitionLoop is missing (not infrastructure failure).
+- [x] Record red commit/run evidence: `1b2f2d2`, [CI run 45840222890](https://github.com/lordmarreal-ui/snapgent-gpt/actions/runs/45840222890). Both Python jobs passed; Node failed at the intended assertion: transitionLoop must be exported by ZSGuard (actual undefined, expected function, exit 1).
 
 ## Task 2: GREEN
-- [ ] Add transitionLoop(flags,event) to core/guard.js; expose it in exported ZSGuard.
-- [ ] Replace only loop start, user stop, finally reset and drain assignment in core/main.js with Object.assign(A, ZSGuard.transitionLoop(A, {type: ...})).
+- [x] Add transitionLoop(flags,event) to core/guard.js; expose it in exported ZSGuard.
+- [x] Replace only loop start, user stop, finally reset and drain assignment in core/main.js with Object.assign(A, ZSGuard.transitionLoop(A, {type: ...})).
 - [ ] Run all Python and JavaScript CI suites; expect green.
 - [ ] Review diff, update ledger, open draft PR against dev/m0-foundation.

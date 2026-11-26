@@ -304,7 +304,33 @@ const ZSGuard = (() => {
     return parts.join(" · ");
   }
 
+  // Pure lifecycle transitions. Other agent state and provider effects remain in
+  // main.js; this reducer only returns the three flags it owns.
+  function transitionLoop(flags, event) {
+    const next = { running: flags.running, stop: flags.stop, stopping: flags.stopping };
+    switch (event.type) {
+      case "start":
+        return next.running ? next : { running: true, stop: false, stopping: false };
+      case "request-stop":
+        if (!next.stopping) {
+          next.stop = true;
+          next.stopping = true;
+        }
+        return next;
+      case "finish":
+        next.running = false;
+        next.stop = false;
+        return next;
+      case "drain":
+        next.stopping = Boolean(event.draining);
+        return next;
+      default:
+        throw new RangeError("Unknown loop lifecycle event: " + event.type);
+    }
+  }
+
   return {
+    transitionLoop,
     mayRetryAfterDisconnect,
     formatRunStats,
     compactCount,
