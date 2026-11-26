@@ -1585,11 +1585,9 @@
   // ════════════════════════════════════════════════════════════════════════
   async function agentLoop(base) {
     if (A.running) return;
-    A.running = true;
+    // Clean slate: never inherit a stale Stop from before this loop started.
+    Object.assign(A, ZSGuard.transitionLoop(A, { type: "start" }));
     A.resumeArmed = false; // loop now owns the turn; drop the regenerate grace
-    A.stop = false;
-    A.stopping = false; // clean slate: never inherit a stale "Stopping…" from a
-                        // Stop click that landed before this loop actually started
     A.loopKey = null; // pinned by syncSessionState once this chat has an id + content
     let truncCount = 0;
     const MAX_TRUNC = 6;
@@ -1893,8 +1891,7 @@
       diag("loop.error", { msg: String((e && e.message) || e) });
       ui.banner("warn", "Internal loop error", String((e && e.message) || e));
     } finally {
-      A.running = false;
-      A.stop = false;
+      Object.assign(A, ZSGuard.transitionLoop(A, { type: "finish" }));
       // Keep the "Stopping…" state while the site's stream is still draining
       // after a user stop: the loop often ends BEFORE the native stop takes
       // effect (loop.end fires with gen still true - seen live on DeepSeek),
@@ -1904,7 +1901,7 @@
       // stop - once the site is actually quiet.
       const draining = A.stopping && A.started && P.isHardGenerating();
       if (A.stopping && draining) diag("stop.drain", { keptStopping: true });
-      A.stopping = draining;
+      Object.assign(A, ZSGuard.transitionLoop(A, { type: "drain", draining }));
       A.toolRunning = false;
       A.toolSettle = null;
       A.loopKey = null;
@@ -2118,8 +2115,7 @@
   function stopLoop() {
     if (A.stopping) return; // already winding down - ignore double-clicks
     diag("stopLoop");
-    A.stop = true;
-    A.stopping = true;
+    Object.assign(A, ZSGuard.transitionLoop(A, { type: "request-stop" }));
     A.stopAt = Date.now(); // grace anchor for the regenerate-as-resume gates
     // Baseline for the stop-retry growth gate (see the self-heal in the meter
     // loop): a retry is only allowed if the reply keeps growing PAST this,
